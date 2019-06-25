@@ -4,6 +4,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.AspNetCore.Routing;
 using Sedio.Logic.Data;
 using Sedio.Web.Execution;
+using Sedio.Web.Execution.Rest;
 
 namespace Sedio.Server.Api.Rest
 {

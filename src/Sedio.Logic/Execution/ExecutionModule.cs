@@ -16,6 +16,7 @@ namespace Sedio.Logic.Execution
             builder.Register(c =>
                 LocalExecutionEngine.New(c.Resolve<IServiceProvider>())
                     .TransformExceptions()
+                    .ValidateRequests()
                     .UseControllers()
                     .Build()
                 ).As<IExecutionEngine>().SingleInstance();
