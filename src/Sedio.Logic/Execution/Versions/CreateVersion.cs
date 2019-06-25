@@ -1,7 +1,12 @@
-﻿namespace Sedio.Logic.Execution.Versions
+﻿using Sedio.Execution;
+
+namespace Sedio.Logic.Execution.Versions
 {
-    public class CreateVersion
+    public sealed class CreateVersionController
     {
-        
+        public sealed class Request
+        {
+
+        }
     }
 }
