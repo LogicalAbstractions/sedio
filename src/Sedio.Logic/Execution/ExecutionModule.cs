@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using FluentValidation;
 using Sedio.Execution;
 
 namespace Sedio.Logic.Execution
@@ -11,6 +12,11 @@ namespace Sedio.Logic.Execution
             builder.RegisterAssemblyTypes(GetType().Assembly)
                 .Where(t => t.IsAssignableTo<IExecutionController>() && !t.IsAbstract && t.IsClass)
                 .As<IExecutionController>()
+                .SingleInstance();
+
+            builder.RegisterAssemblyTypes(GetType().Assembly)
+                .Where(t => t.IsAssignableTo<IValidator>() && !t.IsAbstract && t.IsClass)
+                .As<IValidator>()
                 .SingleInstance();
 
             builder.Register(c =>

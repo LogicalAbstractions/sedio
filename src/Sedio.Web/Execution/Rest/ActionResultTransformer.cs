@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sedio.Execution;
 
@@ -23,33 +26,33 @@ namespace Sedio.Web.Execution.Rest
         private static ActionResult DefaultErrorTransformCore(ExecutionErrorCollection errors, 
             ExecutionHostController controller)
         {
-            var mainError = errors.FirstOrDefault(e => e.Type != ExecutionErrorType.Unknown);
+            var firstError = errors.First();
 
-            var reportingError = mainError ?? errors.First();
-            var reportingErrorContent = new
+            var problemDetails = new ProblemDetails()
             {
-                reportingError.Type,
-                reportingError.Message
+                Type = "about:blank",
+                Instance = controller.Request.GetEncodedUrl(),
+                Status = (int)firstError.Type,
+                Detail = firstError.Message,
+                Title = firstError.Type.ToString()
             };
 
-            if (mainError != null)
+            if (firstError.Type == ExecutionErrorType.ValidationFailed)
             {
-                switch (mainError.Type)
-                {
-                    case ExecutionErrorType.Unknown:
-                        return new ObjectResult(reportingErrorContent) { StatusCode = 500 };
-                    case ExecutionErrorType.NotFound:
-                        return new NotFoundObjectResult(reportingErrorContent);
-                    case ExecutionErrorType.ValidationFailed:
-                        return new BadRequestObjectResult(reportingErrorContent);
-                    case ExecutionErrorType.Conflict:
-                        return new ConflictObjectResult(reportingErrorContent);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+               problemDetails = new ValidationProblemDetails()
+               {
+                   Type = problemDetails.Type,
+                   Instance = problemDetails.Instance,
+                   Status = problemDetails.Status,
+                   Detail = problemDetails.Detail,
+                   Title = problemDetails.Title,
+                   Errors = { {problemDetails.Title,
+                       errors.Where(e => e.Type == ExecutionErrorType.ValidationFailed)
+                           .Select(e => e.Message).ToArray()}}
+               };
             }
 
-            return new ObjectResult(reportingErrorContent) {StatusCode = 500};
+            return new ObjectResult(problemDetails) {StatusCode = problemDetails.Status};
         }
 
         private readonly Task<ValueOrError<T>> source;

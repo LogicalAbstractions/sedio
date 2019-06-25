@@ -4,10 +4,10 @@ namespace Sedio.Execution
 {
     public enum ExecutionErrorType
     {
-        Unknown,
-        NotFound,
-        ValidationFailed,
-        Conflict
+        Unknown = 500,
+        NotFound = 404,
+        ValidationFailed = 400,
+        Conflict = 409
     }
 
     public sealed class ExecutionError

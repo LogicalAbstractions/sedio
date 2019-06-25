@@ -15,7 +15,6 @@ namespace Sedio.Execution
     {
         public sealed class Builder
         {
-            private readonly IServiceProvider serviceProvider;
             private readonly List<AsyncPipeline<ExecutionContext>.StepDelegate> steps;
 
             internal Builder(IServiceProvider serviceProvider)
@@ -34,7 +33,7 @@ namespace Sedio.Execution
 
             public Builder ValidateRequests()
             {
-                return ValidateRequests(serviceProvider.ResolveAll<IValidator>());
+                return ValidateRequests(Services.ResolveAll<IValidator>());
             }
 
             public Builder ValidateRequests(IEnumerable<IValidator> validators)
@@ -46,7 +45,7 @@ namespace Sedio.Execution
             {
                 return Use(async (input, next) =>
                 {
-                    static bool AddExceptionError(ExecutionContext context, Exception ex)
+                    bool AddExceptionError(ExecutionContext context, Exception ex)
                     {
                         if (ex is ExecutionException executionException)
                         {
