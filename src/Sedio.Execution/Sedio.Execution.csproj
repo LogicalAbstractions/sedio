@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sedio.Core\Sedio.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Caching\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="8.4.0" />
+  </ItemGroup>
+
+</Project>

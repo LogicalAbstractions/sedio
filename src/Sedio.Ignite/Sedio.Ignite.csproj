@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <NoWarn>NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Apache.Ignite" Version="2.7.5" />
+    <PackageReference Include="Apache.Ignite.Linq" Version="2.7.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sedio.Core\Sedio.Core.csproj" />
+    <ProjectReference Include="..\Sedio.Execution\Sedio.Execution.csproj" />
+  </ItemGroup>
+
+</Project>

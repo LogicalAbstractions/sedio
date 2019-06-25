@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sedio.Contracts\Sedio.Contracts.csproj" />
+    <ProjectReference Include="..\Sedio.Core\Sedio.Core.csproj" />
+    <ProjectReference Include="..\Sedio.Execution\Sedio.Execution.csproj" />
+    <ProjectReference Include="..\Sedio.Ignite\Sedio.Ignite.csproj" />
+  </ItemGroup>
+
+</Project>
