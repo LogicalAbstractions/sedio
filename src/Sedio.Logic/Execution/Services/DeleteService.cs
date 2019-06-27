@@ -22,7 +22,7 @@ namespace Sedio.Logic.Execution.Services
 
         protected override async Task<Response> OnExecute(ExecutionContext context, Request request)
         {
-            var branch = context.Branch();
+            var branch = await context.Branch().ConfigureAwait(false);
 
             if (await branch.Services.RemoveAsync(NodeId.Create<ServiceNode>(request.Id))
                 .ConfigureAwait(false))

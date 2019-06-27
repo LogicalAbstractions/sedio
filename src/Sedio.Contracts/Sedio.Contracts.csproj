@@ -9,4 +9,8 @@
     <PackageReference Include="NuGet.Versioning" Version="5.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Sedio.Common\Sedio.Common.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,19 +1,37 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Apache.Ignite.Core;
+using Apache.Ignite.Core.Cache;
+using Apache.Ignite.Core.Cache.Configuration;
 using Apache.Ignite.Core.Common;
 using Remotion.Linq.Clauses;
+using Sedio.Core.Data;
+using Sedio.Core.Timing;
 
 namespace Sedio.Ignite
 {
-    public abstract class IgniteBranchProvider<TSchema,TBranch>
+    public abstract class IgniteBranchProvider<TSchema,TBranch,TBranchNode>
         where TSchema : IgniteBranchSchema
-        where TBranch : IgniteBranch<TSchema>
+        where TBranch : IgniteBranch<TSchema,TBranchNode>
+        where TBranchNode : IgniteBranchNode
     {
-        protected IgniteBranchProvider(TSchema schema, IIgnite ignite)
+        private readonly ICache<NodeId, TBranchNode> branchCache;
+        private readonly ITimeProvider timeProvider;
+
+        protected IgniteBranchProvider(TSchema schema, IIgnite ignite, ITimeProvider timeProvider)
         {
             Schema = schema;
             Ignite = ignite;
+            this.timeProvider = timeProvider;
+
+            this.branchCache = ignite.GetOrCreateCache<NodeId, TBranchNode>(
+                new CacheConfiguration("branches", new QueryEntity(typeof(NodeId), typeof(TBranchNode)))
+                {
+                    DataRegionName = IgniteDataRegions.System.Name,
+                    AtomicityMode = CacheAtomicityMode.TransactionalSnapshot,
+                    CacheMode = CacheMode.Replicated,
+                    EnableStatistics = true
+                });
         }
 
         public TSchema Schema { get; }
@@ -22,36 +40,61 @@ namespace Sedio.Ignite
 
         public IReadOnlyList<string> BranchIds => Schema.GetBranchIds(Ignite);
 
-        public TBranch Get(string branchId)
+        public async Task<TBranch> Get(string branchId)
         {
-            if (Schema.Exists(Ignite, branchId))
+            var node = await branchCache.GetAsyncOrDefault(NodeId.Create<TBranchNode>(branchId))
+                .ConfigureAwait(false);
+
+            if (node != null)
             {
-                return CreateInstance(Ignite, Schema, branchId);
+                return CreateInstance(Ignite, Schema, node);
             }
 
             throw new IgniteException($"Branch {branchId} does not exist");
         }
 
-        public bool Exists(string branchId)
+        public Task<bool> Exists(string branchId)
         {
-            return Schema.Exists(Ignite, branchId);
+            return branchCache.ContainsKeyAsync(NodeId.Create<TBranchNode>(branchId));
         }
 
-        public void Create(string branchId)
+        public async Task Create(string branchId,string? sourceBranchId)
         {
-            Schema.Create(Ignite,branchId);
+            var node = CreateNode();
+
+            node.Id = NodeId.Create<TBranchNode>(branchId);
+            node.Metadata = NodeMetadata.Create(timeProvider);
+            node.SourceId = sourceBranchId;
+
+            if (await branchCache.PutIfAbsentAsync(node.Id, node).ConfigureAwait(false))
+            {
+                Schema.Create(Ignite, branchId);
+
+                if (sourceBranchId != null)
+                {
+                    if (await Exists(sourceBranchId).ConfigureAwait(false))
+                    {
+                        await Schema.Copy(Ignite, sourceBranchId, branchId).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        throw new IgniteException($"Branch {sourceBranchId} does not exist");
+                    }
+                }
+            }
         }
 
-        public void Delete(string branchId)
+        public async Task Delete(string branchId)
         {
-            Schema.Delete(Ignite,branchId);
+            if (await branchCache.RemoveAsync(NodeId.Create<TBranchNode>(branchId))
+                .ConfigureAwait(false))
+            {
+                Schema.Delete(Ignite, branchId);
+            }
         }
 
-        public Task Copy(string sourceBranchId, string targetBranchId)
-        {
-            return Schema.Copy(Ignite, sourceBranchId, targetBranchId);
-        }
+        protected abstract TBranchNode CreateNode();
 
-        protected abstract TBranch CreateInstance(IIgnite ignite, TSchema schema, string branchId);
+        protected abstract TBranch CreateInstance(IIgnite ignite, TSchema schema, TBranchNode node);
     }
 }

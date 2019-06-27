@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sedio.Web", "src\Sedio.Web\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sedio.Logic", "src\Sedio.Logic\Sedio.Logic.csproj", "{0AD4D806-0D3C-41C6-969D-FB32DEB714A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sedio.Client", "src\Sedio.Client\Sedio.Client.csproj", "{ABB87EF0-B0F7-4AE0-A568-46685CEAEF81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sedio.Client", "src\Sedio.Client\Sedio.Client.csproj", "{ABB87EF0-B0F7-4AE0-A568-46685CEAEF81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sedio.Common", "src\Sedio.Common\Sedio.Common.csproj", "{E9BF0E9D-9B98-418D-A362-11CAAFC5484B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{ABB87EF0-B0F7-4AE0-A568-46685CEAEF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABB87EF0-B0F7-4AE0-A568-46685CEAEF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABB87EF0-B0F7-4AE0-A568-46685CEAEF81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9BF0E9D-9B98-418D-A362-11CAAFC5484B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9BF0E9D-9B98-418D-A362-11CAAFC5484B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9BF0E9D-9B98-418D-A362-11CAAFC5484B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9BF0E9D-9B98-418D-A362-11CAAFC5484B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

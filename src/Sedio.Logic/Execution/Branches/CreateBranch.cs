@@ -23,21 +23,9 @@ namespace Sedio.Logic.Execution.Branches
         {
             var branchProvider = context.BranchProvider();
 
-            if (!branchProvider.Exists(request.Id))
+            if (!await branchProvider.Exists(request.Id).ConfigureAwait(false))
             {
-                branchProvider.Create(request.Id);
-
-                if (request.SourceId != null)
-                {
-                    if (branchProvider.Exists(request.SourceId))
-                    {
-                        await branchProvider.Copy(request.SourceId, request.Id).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        throw new ExecutionException(ExecutionErrorType.NotFound,$"Source branch {request.SourceId} not found");
-                    }
-                }
+                await branchProvider.Create(request.Id,request.SourceId).ConfigureAwait(false);
 
                 return new Response() {Branch = new BranchOutput()
                 {

@@ -21,7 +21,7 @@ namespace Sedio.Logic.Execution.Services
             Request request)
 #pragma warning restore 1998
         {
-            var branch = context.Branch();
+            var branch = await context.Branch().ConfigureAwait(false);
 
             var items = branch.Services.AsCacheQueryable().ApplyPaging(request.PagingParameters);
 

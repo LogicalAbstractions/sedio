@@ -1,7 +1,9 @@
-﻿using Apache.Ignite.Core;
+﻿using System.Threading.Tasks;
+using Apache.Ignite.Core;
 using Apache.Ignite.Core.Cache;
 using Sedio.Core.Data;
 using Sedio.Core.DependencyInjection;
+using Sedio.Core.Timing;
 using Sedio.Execution;
 using Sedio.Ignite;
 
@@ -17,12 +19,17 @@ namespace Sedio.Logic.Data
         public IgniteCacheSchema<NodeId, ServiceNode> Services { get; }
     }
 
-    public sealed class ModelBranch : IgniteBranch<ModelBranchSchema>
+    public sealed class ModelBranchNode : IgniteBranchNode
     {
-        internal ModelBranch(string id, 
+    }
+
+    public sealed class ModelBranch : IgniteBranch<ModelBranchSchema,ModelBranchNode>
+    {
+        internal ModelBranch(
             IIgnite ignite, 
-            ModelBranchSchema schema) 
-            : base(id, ignite, schema)
+            ModelBranchSchema schema,
+            ModelBranchNode node) 
+            : base(ignite, schema,node)
         {
             Services = Resolve(schema.Services);
         }
@@ -30,16 +37,21 @@ namespace Sedio.Logic.Data
         public ICache<NodeId,ServiceNode> Services { get; }
     }
 
-    public sealed class ModelBranchProvider : IgniteBranchProvider<ModelBranchSchema, ModelBranch>
+    public sealed class ModelBranchProvider : IgniteBranchProvider<ModelBranchSchema, ModelBranch,ModelBranchNode>
     {
-        public ModelBranchProvider(IIgnite ignite) 
-            : base(new ModelBranchSchema(), ignite)
+        public ModelBranchProvider(IIgnite ignite,ITimeProvider timeProvider) 
+            : base(new ModelBranchSchema(), ignite,timeProvider)
         {
         }
 
-        protected override ModelBranch CreateInstance(IIgnite ignite, ModelBranchSchema schema, string branchId)
+        protected override ModelBranchNode CreateNode()
         {
-            return new ModelBranch(branchId,ignite,schema);
+            return new ModelBranchNode();
+        }
+
+        protected override ModelBranch CreateInstance(IIgnite ignite, ModelBranchSchema schema, ModelBranchNode node)
+        {
+            return new ModelBranch(ignite, schema, node);
         }
     }
 
@@ -62,7 +74,7 @@ namespace Sedio.Logic.Data
             return executionContext.Services.ResolveRequired<ModelBranchProvider>();
         }
 
-        public static ModelBranch Branch(this ExecutionContext executionContext)
+        public static Task<ModelBranch> Branch(this ExecutionContext executionContext)
         {
             var branchId = executionContext.BranchId();
             return executionContext.BranchProvider().Get(branchId);

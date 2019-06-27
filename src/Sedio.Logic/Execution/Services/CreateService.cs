@@ -21,11 +21,9 @@ namespace Sedio.Logic.Execution.Services
             public ServiceOutput Service { get; set; } = new ServiceOutput();
         }
 
-#pragma warning disable 1998
         protected override async Task<Response> OnExecute(ExecutionContext context, Request request)
-#pragma warning restore 1998
         {
-            var branch = context.Branch();
+            var branch = await context.Branch().ConfigureAwait(false);
 
             using var transaction = branch.BeginTransaction();
 
@@ -36,9 +34,10 @@ namespace Sedio.Logic.Execution.Services
                 Metadata = NodeMetadata.Create(context.TimeProvider())
             };
 
-            if (branch.Services.PutIfAbsent(serviceNode.Id, serviceNode))
+            if (await branch.Services.PutIfAbsentAsync(serviceNode.Id, serviceNode)
+                .ConfigureAwait(false))
             {
-                transaction.Commit();
+                await transaction.CommitAsync().ConfigureAwait(false);
 
                 return new Response()
                 {

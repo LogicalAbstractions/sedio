@@ -10,4 +10,8 @@
     <PackageReference Include="Serilog" Version="2.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Sedio.Common\Sedio.Common.csproj" />
+  </ItemGroup>
+
 </Project>

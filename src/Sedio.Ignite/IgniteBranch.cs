@@ -7,27 +7,31 @@ namespace Sedio.Ignite
     public abstract class IgniteBranch
     {
         protected IgniteBranch(
-            string id, 
             IIgnite ignite, 
-            IgniteBranchSchema schema)
+            IgniteBranchSchema schema, 
+            IgniteBranchNode node)
         {
-            Id = id;
+            Id = node.Id.Path;
             Ignite = ignite;
             Schema = schema;
+            Node = node;
         }
 
         public string Id { get; }
         public IIgnite Ignite { get; }
         public IgniteBranchSchema Schema { get; }
+        public IgniteBranchNode Node { get; }
     }
 
-    public abstract class IgniteBranch<TSchema> : IgniteBranch
+    public abstract class IgniteBranch<TSchema,TBranchNode> : IgniteBranch
         where TSchema : IgniteBranchSchema
+        where TBranchNode : IgniteBranchNode
     {
-        protected IgniteBranch(string id, 
-            IIgnite ignite, TSchema schema) 
-            : base(id, ignite, schema)
+        protected IgniteBranch(
+            IIgnite ignite, TSchema schema,TBranchNode branchNode) 
+            : base(ignite, schema,branchNode)
         {
+          
         }
 
         protected ICache<TKey, TValue> Resolve<TKey, TValue>(IgniteCacheSchema<TKey, TValue> schema)
@@ -39,5 +43,8 @@ namespace Sedio.Ignite
         {
             return Ignite.GetTransactions().TxStart();
         }
+
+        public new TSchema Schema => (TSchema) base.Schema;
+        public new TBranchNode Node => (TBranchNode) base.Node;
     }
 }
